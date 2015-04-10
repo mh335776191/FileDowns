@@ -1,0 +1,9 @@
+D:\gitui\UrlFileDown\UrlFileDown\bin\Debug\UrlFileDown.exe.config
+D:\gitui\UrlFileDown\UrlFileDown\bin\Debug\UrlFileDown.exe
+D:\gitui\UrlFileDown\UrlFileDown\bin\Debug\UrlFileDown.pdb
+D:\gitui\UrlFileDown\UrlFileDown\obj\Debug\UrlFileDown.csprojResolveAssemblyReference.cache
+D:\gitui\UrlFileDown\UrlFileDown\obj\Debug\UrlFileDown.UrlFiledown.resources
+D:\gitui\UrlFileDown\UrlFileDown\obj\Debug\UrlFileDown.Properties.Resources.resources
+D:\gitui\UrlFileDown\UrlFileDown\obj\Debug\UrlFileDown.csproj.GenerateResource.Cache
+D:\gitui\UrlFileDown\UrlFileDown\obj\Debug\UrlFileDown.exe
+D:\gitui\UrlFileDown\UrlFileDown\obj\Debug\UrlFileDown.pdb
