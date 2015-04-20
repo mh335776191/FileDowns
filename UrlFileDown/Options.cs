@@ -66,6 +66,23 @@ namespace UrlFileDown
         /// 获取文件的类型
         /// </summary>
         public OptionFileType FileType { get; set; }
+        /// <summary>
+        /// 主域名
+        /// </summary>
+        public string Host
+        {
+            get
+            {
+                //http://www.qiushibaike.com/hot/page/2/hot/page/3/?s=4765025
+                Regex reg = new Regex("(?<host>http://[^/]*)");
+                return reg.Match(mainurl).Groups["host"].Value;
+            }
+        }
+        /// <summary>
+        /// 网络请求异常次数
+        /// </summary>
+        public int ErrorTime
+        { get; set; }
     }
     /// <summary>
     /// 获取资源的类型

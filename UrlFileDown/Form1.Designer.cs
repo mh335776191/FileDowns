@@ -54,12 +54,13 @@
             this.lburltitle = new System.Windows.Forms.Label();
             this.splitContainer2 = new System.Windows.Forms.SplitContainer();
             this.dgvoptions = new System.Windows.Forms.DataGridView();
+            this.lsbox_result = new System.Windows.Forms.ListBox();
+            this.GetFileCheck = new System.Windows.Forms.DataGridViewCheckBoxColumn();
             this.WebName = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.MainUrl = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.SaveFileName = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.FileType = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.lsv_downresult = new System.Windows.Forms.ListView();
-            this.columnHeader1 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.label1 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -81,6 +82,7 @@
             // 
             // splitContainer1.Panel1
             // 
+            this.splitContainer1.Panel1.Controls.Add(this.label1);
             this.splitContainer1.Panel1.Controls.Add(this.tb_encoding);
             this.splitContainer1.Panel1.Controls.Add(this.lbencoding);
             this.splitContainer1.Panel1.Controls.Add(this.lbfiletype);
@@ -328,7 +330,7 @@
             // 
             // splitContainer2.Panel2
             // 
-            this.splitContainer2.Panel2.Controls.Add(this.lsv_downresult);
+            this.splitContainer2.Panel2.Controls.Add(this.lsbox_result);
             this.splitContainer2.Size = new System.Drawing.Size(628, 607);
             this.splitContainer2.SplitterDistance = 209;
             this.splitContainer2.TabIndex = 0;
@@ -336,9 +338,11 @@
             // dgvoptions
             // 
             this.dgvoptions.AllowUserToAddRows = false;
+            this.dgvoptions.AllowUserToDeleteRows = false;
             this.dgvoptions.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
             this.dgvoptions.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dgvoptions.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.GetFileCheck,
             this.WebName,
             this.MainUrl,
             this.SaveFileName,
@@ -346,52 +350,72 @@
             this.dgvoptions.Dock = System.Windows.Forms.DockStyle.Fill;
             this.dgvoptions.Location = new System.Drawing.Point(0, 0);
             this.dgvoptions.Name = "dgvoptions";
+            this.dgvoptions.ReadOnly = true;
             this.dgvoptions.RowTemplate.Height = 23;
             this.dgvoptions.Size = new System.Drawing.Size(628, 209);
             this.dgvoptions.TabIndex = 0;
             this.dgvoptions.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvoptions_CellClick);
+            this.dgvoptions.DataError += new System.Windows.Forms.DataGridViewDataErrorEventHandler(this.dgvoptions_DataError);
+            // 
+            // lsbox_result
+            // 
+            this.lsbox_result.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.lsbox_result.FormattingEnabled = true;
+            this.lsbox_result.ItemHeight = 12;
+            this.lsbox_result.Location = new System.Drawing.Point(0, 0);
+            this.lsbox_result.Name = "lsbox_result";
+            this.lsbox_result.Size = new System.Drawing.Size(628, 394);
+            this.lsbox_result.TabIndex = 0;
+            // 
+            // GetFileCheck
+            // 
+            this.GetFileCheck.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.None;
+            this.GetFileCheck.FillWeight = 101.5228F;
+            this.GetFileCheck.HeaderText = "全选";
+            this.GetFileCheck.Name = "GetFileCheck";
+            this.GetFileCheck.ReadOnly = true;
+            this.GetFileCheck.Width = 40;
             // 
             // WebName
             // 
             this.WebName.DataPropertyName = "Title";
+            this.WebName.FillWeight = 99.61929F;
             this.WebName.HeaderText = "网站名称";
             this.WebName.Name = "WebName";
+            this.WebName.ReadOnly = true;
             // 
             // MainUrl
             // 
             this.MainUrl.DataPropertyName = "MainUrl";
+            this.MainUrl.FillWeight = 99.61929F;
             this.MainUrl.HeaderText = "进入URL";
             this.MainUrl.Name = "MainUrl";
+            this.MainUrl.ReadOnly = true;
             // 
             // SaveFileName
             // 
             this.SaveFileName.DataPropertyName = "SaveFileName";
+            this.SaveFileName.FillWeight = 99.61929F;
             this.SaveFileName.HeaderText = "序列化文件名称";
             this.SaveFileName.Name = "SaveFileName";
+            this.SaveFileName.ReadOnly = true;
             // 
             // FileType
             // 
             this.FileType.DataPropertyName = "FileType";
+            this.FileType.FillWeight = 99.61929F;
             this.FileType.HeaderText = "资源类型";
             this.FileType.Name = "FileType";
+            this.FileType.ReadOnly = true;
             // 
-            // lsv_downresult
+            // label1
             // 
-            this.lsv_downresult.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-            this.columnHeader1});
-            this.lsv_downresult.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.lsv_downresult.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.lsv_downresult.Location = new System.Drawing.Point(0, 0);
-            this.lsv_downresult.Name = "lsv_downresult";
-            this.lsv_downresult.Size = new System.Drawing.Size(628, 394);
-            this.lsv_downresult.TabIndex = 0;
-            this.lsv_downresult.UseCompatibleStateImageBehavior = false;
-            this.lsv_downresult.View = System.Windows.Forms.View.List;
-            // 
-            // columnHeader1
-            // 
-            this.columnHeader1.Text = "";
-            this.columnHeader1.Width = 500;
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(5, 517);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(293, 12);
+            this.label1.TabIndex = 25;
+            this.label1.Text = "列表资源：listurl。详情资源:url.下一页：nextpage";
             // 
             // UrlFiledown
             // 
@@ -445,14 +469,15 @@
         private System.Windows.Forms.Button bt_begin;
         private System.Windows.Forms.Label lbfiletype;
         private System.Windows.Forms.ComboBox cmb_filetype;
+        private System.Windows.Forms.TextBox tb_encoding;
+        private System.Windows.Forms.Label lbencoding;
+        private System.Windows.Forms.ListBox lsbox_result;
+        private System.Windows.Forms.DataGridViewCheckBoxColumn GetFileCheck;
         private System.Windows.Forms.DataGridViewTextBoxColumn WebName;
         private System.Windows.Forms.DataGridViewTextBoxColumn MainUrl;
         private System.Windows.Forms.DataGridViewTextBoxColumn SaveFileName;
         private System.Windows.Forms.DataGridViewTextBoxColumn FileType;
-        private System.Windows.Forms.ListView lsv_downresult;
-        private System.Windows.Forms.TextBox tb_encoding;
-        private System.Windows.Forms.Label lbencoding;
-        private System.Windows.Forms.ColumnHeader columnHeader1;
+        private System.Windows.Forms.Label label1;
 
     }
 }

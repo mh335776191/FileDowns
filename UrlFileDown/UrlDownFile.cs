@@ -48,14 +48,19 @@ namespace UrlFileDown
             var mainhtml = GetHtml(model.MainUrl, _encoding);
             mainhtml.ContinueWith(m =>
             {
+
                 if (_mainListReg.IsMatch(m.Result))
                 {
                     var _mainmatch = _mainListReg.Matches(m.Result);
                     foreach (Match mc in _mainmatch)
                     {
                         var detailurl = mc.Groups["listurl"].Value.ReplaceUrlHtmlTag();
+                        var listtitle = mc.Groups["title"].Value;
                         if (model.IsDetail) //如果捕获的是详细页面
                         {
+                            bool iswww = detailurl.Contains("www.");
+                            if (!iswww)
+                                detailurl = model.Host + detailurl;
                             var detailhtml = GetHtml(detailurl, _encoding);
                             detailhtml.ContinueWith(d =>
                             {
@@ -66,7 +71,8 @@ namespace UrlFileDown
                                     foreach (Match dmc in _detailmatch)
                                     {
                                         var url = dmc.Groups["url"].Value;
-                                        LoadHref(url, _encoding, model);//捕获列表页资源
+                                        var title = dmc.Groups["title"].Value;
+                                        LoadHref(url, _encoding, model, title);//捕获列表页资源
 
                                     }
                                 }
@@ -74,7 +80,7 @@ namespace UrlFileDown
                         }
                         else
                         {
-                            LoadHref(detailurl, _encoding, model);//捕获列表页资源
+                            LoadHref(detailurl, _encoding, model, listtitle);//捕获列表页资源
                         }
                     }
                 }
@@ -82,19 +88,25 @@ namespace UrlFileDown
                 {
                     if (_nextpageReg.IsMatch(m.Result))
                     {
-                        model.MainUrl = _nextpageReg.Match(m.Result).Groups["nextpage"].Value;
+                        var nexturl = _nextpageReg.Match(m.Result).Groups["nextpage"].Value;
+                        DownEventTag(nexturl);
+                        bool iswww = nexturl.Contains("www.");
+                        if (!iswww)
+                            model.MainUrl = model.Host + nexturl;
+                        else
+                            model.MainUrl = nexturl;
                         DownLogic(model);
                     }
                 }
             });
         }
 
-        private void LoadHref(string url, Encoding encoding, Options option)
+        private void LoadHref(string url, Encoding encoding, Options option, string title)
         {
             switch (option.FileType)
             {
                 case OptionFileType.File:
-                    DownFiles(url, encoding, option);
+                    DownFiles(url, encoding, option, title);
                     break;
                 case OptionFileType.Text:
                     DownTxt(url, encoding, option);
@@ -136,14 +148,25 @@ namespace UrlFileDown
 
         }
         /// <summary>
-        /// 保存文件
+        /// 下载文件
         /// </summary>
-        /// <param name="url"></param>
-        /// <param name="encoding"></param>
-        private async void DownFiles(string url, Encoding encoding, Options option)
+        /// <param name="url">文件路径</param>
+        /// <param name="encoding">编码</param>
+        /// <param name="option">保存信息</param>
+        /// <param name="title">文件alt或者title</param>
+        private async void DownFiles(string url, Encoding encoding, Options option, string title)
         {
+        label:
             string file;
             var stream = GetResponseStream(url, out file);
+            if (stream == null)
+            {
+                option.ErrorTime += 1;
+                if (option.ErrorTime <= 5)//允许请求异常5次
+                {
+                    goto label;
+                }
+            }
             if (stream != null)
             {
                 using (StreamReader streamreader = new StreamReader(stream, encoding))
@@ -154,7 +177,14 @@ namespace UrlFileDown
                     {
                         Directory.CreateDirectory(filename);
                     }
-                    filename += file;
+                    if (!string.IsNullOrWhiteSpace(title))
+                    {
+                        title = title.Replace("\\", "");
+                        filename += title;
+                    }
+                    var tempfilename = filename += file;
+                    if (File.Exists(tempfilename))
+                        return;
                     using (var locstrem = new FileStream(filename, FileMode.Create))
                     {
                         int totalsize = 0;
@@ -183,7 +213,11 @@ namespace UrlFileDown
         private Stream GetResponseStream(string url)
         {
             HttpWebRequest webrequest = WebRequest.Create(url) as HttpWebRequest;
-            if (webrequest != null) ;
+            webrequest.UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/38.0.2125.111 Safari/537.36";
+
+            webrequest.Accept = "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8";
+            webrequest.Headers.Set("Accept-Language", "zh-CN,zh;q=0.8,en-US;q=0.6,en;q=0.4");
+            if (webrequest != null)
             {
                 var webResponse = webrequest.GetResponse();
                 Stream responsestream = webResponse.GetResponseStream();
@@ -197,6 +231,7 @@ namespace UrlFileDown
         private Stream GetResponseStream(string url, out string filenameandext)
         {
             filenameandext = string.Empty;
+
             try
             {
                 HttpWebRequest webrequest = WebRequest.Create(url) as HttpWebRequest;
