@@ -253,7 +253,7 @@ namespace UrlFileDown
             }
             catch (Exception ex)
             {
-                Thread.Sleep(1000 * 5);
+                Thread.Sleep(10000 * 5);
                 DownEventTag(string.Format("请求异常:{0}", ex.Message + ex.InnerException));
             }
             return null;
