@@ -6,6 +6,7 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using UrlFileDown.Tool;
@@ -20,18 +21,25 @@ namespace UrlFileDown
         {
             InitializeComponent();
             cmb_filetype.DataSource = typeof(OptionFileType).GetEnumNames();
-            FolderBrowserDialog dialog = new FolderBrowserDialog();
-            dialog.Description = "请选择下载保存路径";
-            if (dialog.ShowDialog() == DialogResult.OK)
+            if (!string.IsNullOrWhiteSpace(CommonSettings.SaveFilePath))
             {
-                displaylist = new List<Options>();
-                lbsaveresult.Text = dialog.SelectedPath;
-                list = SerializeHelp<Options>.GetClassModelList(CommonSettings.SaveOptionPath);
-                list.ForEach(m => displaylist.Add(m));
-                dgvoptions.AutoGenerateColumns = false;
-                BindOptions();
-                this.Show();
+                lbsaveresult.Text = CommonSettings.SaveFilePath;
             }
+            else
+            {
+                FolderBrowserDialog dialog = new FolderBrowserDialog();
+                dialog.Description = "请选择下载保存路径";
+                if (dialog.ShowDialog() == DialogResult.OK)
+                {
+                    lbsaveresult.Text = dialog.SelectedPath;
+                }
+            }
+            UrlDownFile.FileSavePath = lbsaveresult.Text;
+            displaylist = new List<Options>();
+            list = SerializeHelp<Options>.GetClassModelList(CommonSettings.SaveOptionPath);
+            list.ForEach(m => displaylist.Add(m));
+            dgvoptions.AutoGenerateColumns = false;
+            BindOptions();
         }
         private Options GetSetOptions()
         {
@@ -78,7 +86,6 @@ namespace UrlFileDown
             option.IsDetail = isdetail.Checked;
             option.IsNextPage = isnextpage.Checked;
             option.Title = txwebname.Text;
-            option.SavePath = lbsaveresult.Text;
             option.MainUrl = tburl.Text;
             option.SaveFileName = DateTime.Now.ToString("yyyyMMddHHssmm");
             option.Encoding = tb_encoding.Text;
@@ -173,7 +180,10 @@ namespace UrlFileDown
                 MessageBox.Show("请选择要下载的");
             UrlDownFile down = new UrlDownFile(list);
             down.DownEvent += down_DownEvent;
-            down.GetFiles();
+            System.Threading.Thread fileth = new Thread(new ThreadStart(down.GetFiles));
+            fileth.IsBackground = true;
+            fileth.Start();
+           
         }
 
         void down_DownEvent(string obj)
@@ -193,7 +203,7 @@ namespace UrlFileDown
         {
             var templist = new List<Options>();
             for (int i = 0; i < dgvoptions.Rows.Count; i++)
-            {
+            {              
                 if (dgvoptions.Rows[i].Cells[0].Value == null || !(bool)dgvoptions.Rows[i].Cells[0].Value)
                 {
                     templist.Add(list[i]);

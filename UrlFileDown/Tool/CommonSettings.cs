@@ -12,5 +12,9 @@ namespace UrlFileDown.Tool
         {
             get { return System.Configuration.ConfigurationSettings.AppSettings["SaveOptionPath"]; }
         }
+        public static string SaveFilePath
+        {
+            get { return System.Configuration.ConfigurationSettings.AppSettings["SaveFilePath"]; }
+        }
     }
 }

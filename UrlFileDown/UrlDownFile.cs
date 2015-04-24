@@ -13,12 +13,19 @@ namespace UrlFileDown
 
     public class UrlDownFile
     {
-
+        /// <summary>
+        /// 下载文件保存的地方
+        /// </summary>
+        public static string FileSavePath { get; set; }
         public event Action<string> DownEvent;
         private List<Options> options;
         public UrlDownFile(List<Options> _options)
         {
             options = _options;
+            if (string.IsNullOrWhiteSpace(FileSavePath))
+            {
+                throw new AggregateException("保存路径不正确");
+            }
         }
 
         public void DownEventTag(string content)
@@ -36,69 +43,85 @@ namespace UrlFileDown
                 {
                     DownEventTag(string.Format("开始下载:{0}", o.Title));
                     DownLogic(o);
+                    Thread.Sleep(1000 * 5);
                 }
             }
         }
         private void DownLogic(Options model)
         {
-            Encoding _encoding = !string.IsNullOrWhiteSpace(model.Encoding) ? Encoding.GetEncoding(model.Encoding) : Encoding.Default;
-            Regex _mainListReg = new Regex(model.DownFileReg, RegexOptions.IgnoreCase);
-            Regex _detailReg = model.IsDetail ? new Regex(model.DetailReg, RegexOptions.IgnoreCase) : null;
-            Regex _nextpageReg = model.IsNextPage ? new Regex(model.NextPageReg, RegexOptions.IgnoreCase) : null;
-            var mainhtml = GetHtml(model.MainUrl, _encoding);
-            mainhtml.ContinueWith(m =>
+            try
             {
-
-                if (_mainListReg.IsMatch(m.Result))
+                Encoding _encoding = !string.IsNullOrWhiteSpace(model.Encoding) ? Encoding.GetEncoding(model.Encoding) : Encoding.Default;
+                Regex _mainListReg = new Regex(model.DownFileReg, RegexOptions.IgnoreCase);
+                Regex _detailReg = model.IsDetail ? new Regex(model.DetailReg, RegexOptions.IgnoreCase) : null;
+                Regex _nextpageReg = model.IsNextPage ? new Regex(model.NextPageReg, RegexOptions.IgnoreCase) : null;
+                var mainhtml = GetHtml(model.MainUrl, _encoding);
+                mainhtml.ContinueWith(m =>
                 {
-                    var _mainmatch = _mainListReg.Matches(m.Result);
-                    foreach (Match mc in _mainmatch)
+
+                    if (_mainListReg.IsMatch(m.Result))
                     {
-                        var detailurl = mc.Groups["listurl"].Value.ReplaceUrlHtmlTag();
-                        var listtitle = mc.Groups["title"].Value;
-                        if (model.IsDetail) //如果捕获的是详细页面
+                        var _mainmatch = _mainListReg.Matches(m.Result);
+                        foreach (Match mc in _mainmatch)
                         {
-                            bool iswww = detailurl.Contains("www.");
-                            if (!iswww)
-                                detailurl = model.Host + detailurl;
-                            var detailhtml = GetHtml(detailurl, _encoding);
-                            detailhtml.ContinueWith(d =>
+                            var detailurl = mc.Groups["listurl"].Value.ReplaceUrlHtmlTag();
+                            var listtitle = mc.Groups["title"].Value;
+                            if (model.IsDetail) //如果捕获的是详细页面
                             {
-                                var detail = d.Result;
-                                if (_detailReg.IsMatch(detail)) //详细也内容
+                                bool iswww = detailurl.Contains("www.");
+                                if (!iswww)
+                                    detailurl = model.Host + detailurl;
+                                var detailhtml = GetHtml(detailurl, _encoding);
+                                detailhtml.ContinueWith(d =>
                                 {
-                                    var _detailmatch = _detailReg.Matches(detail);//详细页面匹配的内容
-                                    foreach (Match dmc in _detailmatch)
+                                    try
                                     {
-                                        var url = dmc.Groups["url"].Value;
-                                        var title = dmc.Groups["title"].Value;
-                                        LoadHref(url, _encoding, model, title);//捕获列表页资源
+                                        var detail = d.Result;
 
+                                        if (_detailReg.IsMatch(detail)) //详细也内容
+                                        {
+                                            var _detailmatch = _detailReg.Matches(detail);//详细页面匹配的内容
+                                            foreach (Match dmc in _detailmatch)
+                                            {
+                                                var url = dmc.Groups["url"].Value;
+                                                var title = dmc.Groups["title"].Value;
+                                                LoadHref(url, _encoding, model, title);//捕获列表页资源
+
+                                            }
+                                        }
                                     }
-                                }
-                            });
-                        }
-                        else
-                        {
-                            LoadHref(detailurl, _encoding, model, listtitle);//捕获列表页资源
+                                    catch (Exception ex)
+                                    {
+                                        DownEventTag(string.Format("详情页异常:{0}", ex.Message + ex.InnerException+detailurl));
+                                    }
+                                });
+                            }
+                            else
+                            {
+                                LoadHref(detailurl, _encoding, model, listtitle);//捕获列表页资源
+                            }
                         }
                     }
-                }
-                if (model.IsNextPage)
-                {
-                    if (_nextpageReg.IsMatch(m.Result))
+                    if (model.IsNextPage)
                     {
-                        var nexturl = _nextpageReg.Match(m.Result).Groups["nextpage"].Value;
-                        DownEventTag(nexturl);
-                        bool iswww = nexturl.Contains("www.");
-                        if (!iswww)
-                            model.MainUrl = model.Host + nexturl;
-                        else
-                            model.MainUrl = nexturl;
-                        DownLogic(model);
+                        if (_nextpageReg.IsMatch(m.Result))
+                        {
+                            var nexturl = _nextpageReg.Match(m.Result).Groups["nextpage"].Value;
+                            DownEventTag(nexturl);
+                            bool iswww = nexturl.Contains("www.");
+                            if (!iswww)
+                                model.MainUrl = model.Host + nexturl;
+                            else
+                                model.MainUrl = nexturl;
+                            DownLogic(model);
+                        }
                     }
-                }
-            });
+                });
+            }
+            catch (Exception ex)
+            {
+                DownEventTag(string.Format("异常:{0}", ex.Message + ex.InnerException));
+            }
         }
 
         private void LoadHref(string url, Encoding encoding, Options option, string title)
@@ -133,7 +156,9 @@ namespace UrlFileDown
             }
             catch (Exception ex)
             {
-                throw ex;
+                Thread.Sleep(2000 * 5);
+                DownEventTag(string.Format("请求异常:{0}",url+ ex.Message + ex.InnerException));
+                return string.Empty;
             }
 
         }
@@ -171,8 +196,7 @@ namespace UrlFileDown
             {
                 using (StreamReader streamreader = new StreamReader(stream, encoding))
                 {
-                    DownEventTag(string.Format("下载文件:{0}", file));
-                    string filename = option.SavePath + "\\" + option.Title + "\\";
+                    string filename = FileSavePath + "\\" + option.Title + "\\";
                     if (!Directory.Exists(filename))
                     {
                         Directory.CreateDirectory(filename);
@@ -185,23 +209,34 @@ namespace UrlFileDown
                     var tempfilename = filename += file;
                     if (File.Exists(tempfilename))
                         return;
+                    DownEventTag(string.Format("下载文件:{0}", filename));
+                   
                     using (var locstrem = new FileStream(filename, FileMode.Create))
                     {
                         int totalsize = 0;
                         byte[] by = new byte[1024]; //1kb
                         int osize = stream.Read(by, 0, by.Length);
                         int mb = 0;
-                        while (osize > 0)
+                        try
                         {
-                            totalsize += osize;
-                            await locstrem.WriteAsync(by, 0, osize);
-                            osize = stream.Read(by, 0, by.Length);
-                            int tempmb = totalsize / (1024 * 1024);
-                            if (tempmb != mb)
+                            while (osize > 0)
                             {
-                                mb = tempmb;
-                                DownEventTag(string.Format("文件{1} 已下载:{0}MB", mb, file));
+
+                                totalsize += osize;
+                                await locstrem.WriteAsync(by, 0, osize);
+                                osize = stream.Read(by, 0, by.Length);
+                                int tempmb = totalsize / (1024 * 1024);
+                                if (tempmb != mb)
+                                {
+                                    mb = tempmb;
+                                    DownEventTag(string.Format("文件{1} 已下载:{0}MB", mb, filename));
+                                }
+
                             }
+                        }
+                        catch (Exception ex)
+                        {
+                            DownEventTag(string.Format("下载异常:{0}", ex.Message + ex.InnerException));
                         }
                         locstrem.Flush();
                     }
@@ -253,8 +288,9 @@ namespace UrlFileDown
             }
             catch (Exception ex)
             {
-                Thread.Sleep(10000 * 5);
-                DownEventTag(string.Format("请求异常:{0}", ex.Message + ex.InnerException));
+ 
+                Thread.Sleep(2000 * 5);
+                DownEventTag(string.Format("请求异常:{0}",url+ ex.Message + ex.InnerException));
             }
             return null;
             //return "";
