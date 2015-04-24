@@ -40,6 +40,10 @@ namespace UrlFileDown
             list.ForEach(m => displaylist.Add(m));
             dgvoptions.AutoGenerateColumns = false;
             BindOptions();
+<<<<<<< HEAD
+=======
+            this.ShowDialog();
+>>>>>>> 5ef4d249aa3c4ec382e57e1d90245aff63308ae6
         }
         private Options GetSetOptions()
         {

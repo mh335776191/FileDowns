@@ -288,7 +288,10 @@ namespace UrlFileDown
             }
             catch (Exception ex)
             {
+<<<<<<< HEAD
  
+=======
+>>>>>>> 5ef4d249aa3c4ec382e57e1d90245aff63308ae6
                 Thread.Sleep(2000 * 5);
                 DownEventTag(string.Format("请求异常:{0}",url+ ex.Message + ex.InnerException));
             }

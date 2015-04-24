@@ -6,3 +6,12 @@ D:\gitui\UrlFileDown\UrlFileDown\obj\Debug\UrlFileDown.Properties.Resources.reso
 D:\gitui\UrlFileDown\UrlFileDown\obj\Debug\UrlFileDown.csproj.GenerateResource.Cache
 D:\gitui\UrlFileDown\UrlFileDown\obj\Debug\UrlFileDown.exe
 D:\gitui\UrlFileDown\UrlFileDown\obj\Debug\UrlFileDown.pdb
+E:\githubproject\FileDowns\UrlFileDown\bin\Debug\UrlFileDown.exe.config
+E:\githubproject\FileDowns\UrlFileDown\obj\Debug\UrlFileDown.exe
+E:\githubproject\FileDowns\UrlFileDown\obj\Debug\UrlFileDown.pdb
+E:\githubproject\FileDowns\UrlFileDown\bin\Debug\UrlFileDown.exe
+E:\githubproject\FileDowns\UrlFileDown\bin\Debug\UrlFileDown.pdb
+E:\githubproject\FileDowns\UrlFileDown\obj\Debug\UrlFileDown.csprojResolveAssemblyReference.cache
+E:\githubproject\FileDowns\UrlFileDown\obj\Debug\UrlFileDown.UrlFiledown.resources
+E:\githubproject\FileDowns\UrlFileDown\obj\Debug\UrlFileDown.Properties.Resources.resources
+E:\githubproject\FileDowns\UrlFileDown\obj\Debug\UrlFileDown.csproj.GenerateResource.Cache
